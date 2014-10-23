@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace EventCar
 {
-    public interface IEventHandler<T>
+    public interface IEventHandler<in TEvent>
     {
-
+        void Handle(TEvent eventMessage);
     }
 }

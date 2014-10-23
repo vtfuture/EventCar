@@ -15,9 +15,10 @@ namespace EventCar
             Dispatcher.Dispatch(ev);
         }
 
-        public static void Register<TEvent>(TEvent ev) where TEvent : IEvent
+        public static void Register<TEventHandler, TEvent>() where TEventHandler : IEventHandler<TEvent> 
+                                                            where TEvent : IEvent
         {
-            Dispatcher.Register(ev);
+            Dispatcher.Register<TEvent, TEventHandler>();
         }
     }
 }

@@ -11,6 +11,6 @@ namespace EventCar
     {
         void Dispatch<TEvent>(TEvent ev) where TEvent : IEvent;
 
-        void Register<TEvent>(TEvent ev) where TEvent : IEvent;
+        void Register<TEvent, THandler>() where TEvent : IEvent;
     }
 }
