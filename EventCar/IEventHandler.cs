@@ -8,7 +8,7 @@ namespace EventCar
 {
     public interface IEventHandler<in TEvent>
     {
-        int Order { get; set; }
+        int Order { get; }
 
         void Handle(TEvent eventMessage);
     }

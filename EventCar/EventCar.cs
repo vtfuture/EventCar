@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace EventCar
         }
 
         public static void RegisterAll(params Assembly[] assemblies)
-        {
+        { 
             if (assemblies == null)
             {
                 throw new ArgumentNullException("assemblies");
@@ -35,13 +36,10 @@ namespace EventCar
             {
                 var types = assembly.GetTypes();
                 var eventTypes = types.Where(r => typeof(IEvent).IsAssignableFrom(r)).ToList();
-                var handlers = types.Where(r => r.GetInterfaces()
-                                                    .Where(x => x.IsGenericType)
-                                                    .Where(x => x.GetGenericTypeDefinition() == typeof(IEventHandler<>))
-                                                    .Any()).ToList();
+                var handlers = types.Where(HasEventHandlerInterface).ToList();
                 foreach (var ev in eventTypes)
                 {
-                    var myHandlers = handlers.Where(r => r.GetGenericArguments().Contains(ev)).ToList();
+                    var myHandlers = handlers.Where(r => GetEventHandlerInterface(r).GetGenericArguments().Any(x => x == ev)).ToList();
                     myHandlers.ForEach(
                         r =>
                             {
@@ -49,6 +47,19 @@ namespace EventCar
                             });
                 }
             }
+        }
+
+        private static Type GetEventHandlerInterface(Type evHandlerType)
+        {
+            return evHandlerType.GetInterfaces()
+                    .Where(x => x.IsGenericType)
+                    .Where(x => x.GetGenericTypeDefinition() == typeof(IEventHandler<>))
+                    .FirstOrDefault();
+        }
+
+        private static bool HasEventHandlerInterface(Type eventHandler)
+        {
+            return GetEventHandlerInterface(eventHandler) != null;
         }
 
         private static void CheckForDispatcher()
