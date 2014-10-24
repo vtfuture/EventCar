@@ -18,12 +18,18 @@ namespace EventCar
 
             var handlerTypes = GetMappings(eventType);
 
-            foreach (var handlerType in handlerTypes)
+            var instanceList = handlerTypes.Select(
+                x =>
+                    {
+                        var instance = ServiceLocator.Current.GetInstance(x);
+
+                        var handler = instance as IEventHandler<TEvent>;
+
+                        return handler;
+                    });
+
+            foreach (var handler in instanceList.OrderBy(r => r.Order))
             {
-                var instance = ServiceLocator.Current.GetInstance(handlerType);
-
-                var handler = instance as IEventHandler<TEvent>;
-
                 handler.Handle(ev);    
             }
         }
