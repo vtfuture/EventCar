@@ -8,11 +8,11 @@ using Microsoft.Practices.ServiceLocation;
 
 namespace EventCar
 {
-    public class EventDispatcher : IEventDispatcher
+    public class EventDispatcher : BaseEventDispatcher
     {
         private Dictionary<Type, List<Type>> mappings = new Dictionary<Type, List<Type>>();
 
-        public void Dispatch<TEvent>(TEvent ev) where TEvent : IEvent
+        public override void Dispatch<TEvent>(TEvent ev)
         {
             var eventType = ev.GetType();
 
@@ -34,11 +34,16 @@ namespace EventCar
             }
         }
 
-        public void Register<TEvent, THandler>() where TEvent : IEvent
+        public override void Register<TEvent, THandler>()
         {
             var eventType = typeof(TEvent);
             var handlerType = typeof(THandler);
 
+            Register(eventType, handlerType);
+        }
+
+        internal override void Register(Type eventType, Type handlerType)
+        {
             AddMapping(eventType, handlerType);
         }
 

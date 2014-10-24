@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseEventDispatcher.cs" />
     <Compile Include="EventCar.cs" />
     <Compile Include="EventDispatcher.cs" />
     <Compile Include="IEvent.cs" />
