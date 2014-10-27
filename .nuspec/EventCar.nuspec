@@ -1,0 +1,25 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <version>0.1.0</version>
+    <authors>Cezar Cretu</authors>
+    <owners>VeriTech</owners>
+    <id>EventCar</id>
+    <title>EventCar</title>
+    <copyright>VeriTech Solutions SRL 2014</copyright>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>EventCar is a primitive, in-memory event bus surrogate</description>
+    <tags>Event driven</tags>
+    <language>en-US</language>
+    <projectUrl>https://github.com/vtfuture/eventcar</projectUrl>
+    <licenseUrl>https://github.com/vtfuture/EventCar/blob/master/LICENSE</licenseUrl>
+    <dependencies>
+      <dependency id="CommonServiceLocator" version="1.3" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\EventCar\bin\Debug\EventCar.dll" target="lib\net45\" />
+    <file src="..\EventCar\bin\Debug\EventCar.pdb" target="lib\net45\" />
+    <file src="..\**\*.cs" target="src" />
+  </files>
+</package>
