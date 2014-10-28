@@ -8,7 +8,7 @@ namespace EventCar
 {
     public abstract class BaseEventDispatcher : IEventDispatcher
     {
-        public abstract void Dispatch<TEvent>(TEvent ev) where TEvent : IEvent;
+        public abstract void Dispatch<TEvent>(TEvent ev, bool required) where TEvent : IEvent;
 
         public abstract void Register<TEvent, THandler>() where TEvent : IEvent;
 

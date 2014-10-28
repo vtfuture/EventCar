@@ -12,10 +12,10 @@ namespace EventCar
     {
         public static BaseEventDispatcher Dispatcher { get; set; }
 
-        public static void Fire<TEvent>(TEvent ev) where TEvent : IEvent
+        public static void Fire<TEvent>(TEvent ev, bool required = false) where TEvent : IEvent
         {
             CheckForDispatcher();
-            Dispatcher.Dispatch(ev);
+            Dispatcher.Dispatch(ev, required);
         }
 
         public static void Register<TEventHandler, TEvent>() where TEventHandler : IEventHandler<TEvent> 

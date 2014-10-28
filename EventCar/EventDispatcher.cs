@@ -12,11 +12,21 @@ namespace EventCar
     {
         private Dictionary<Type, List<Type>> mappings = new Dictionary<Type, List<Type>>();
 
-        public override void Dispatch<TEvent>(TEvent ev)
+        public override void Dispatch<TEvent>(TEvent ev, bool required)
         {
             var eventType = ev.GetType();
 
             var handlerTypes = GetMappings(eventType);
+
+            if (handlerTypes == null)
+            {
+                if (required)
+                {
+                    throw new NotSupportedException("No handler implemented for type " + eventType.Name); 
+                }
+
+                return;
+            }
 
             var instanceList = handlerTypes.Select(
                 x =>
@@ -51,7 +61,7 @@ namespace EventCar
         {
             if (!mappings.ContainsKey(eventType))
             {
-                throw new NotSupportedException("No handler implemented for type " + eventType.Name);
+                return null;
             }
 
             return mappings[eventType];

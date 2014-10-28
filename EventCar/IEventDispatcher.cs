@@ -9,7 +9,7 @@ namespace EventCar
 {
     public interface IEventDispatcher
     {
-        void Dispatch<TEvent>(TEvent ev) where TEvent : IEvent;
+        void Dispatch<TEvent>(TEvent ev, bool required) where TEvent : IEvent;
 
         void Register<TEvent, THandler>() where TEvent : IEvent;
     }
