@@ -32,20 +32,25 @@ namespace EventCar
                 throw new ArgumentNullException("assemblies");
             }
 
+            var eventTypes = new List<Type>();
+            var handlers = new List<Type>();
+
+
             foreach (var assembly in assemblies)
             {
                 var types = assembly.GetTypes();
-                var eventTypes = types.Where(r => typeof(IEvent).IsAssignableFrom(r)).ToList();
-                var handlers = types.Where(HasEventHandlerInterface).ToList();
-                foreach (var ev in eventTypes)
-                {
-                    var myHandlers = handlers.Where(r => GetEventHandlerInterface(r).GetGenericArguments().Any(x => x == ev)).ToList();
-                    myHandlers.ForEach(
-                        r =>
-                            {
-                                Dispatcher.Register(ev, r);
-                            });
-                }
+                eventTypes.AddRange(types.Where(r => typeof(IEvent).IsAssignableFrom(r)).ToList());
+                handlers.AddRange(types.Where(HasEventHandlerInterface).ToList());
+            }
+
+            foreach (var ev in eventTypes)
+            {
+                var myHandlers = handlers.Where(r => GetEventHandlerInterface(r).GetGenericArguments().Any(x => x == ev)).ToList();
+                myHandlers.ForEach(
+                    r =>
+                    {
+                        Dispatcher.Register(ev, r);
+                    });
             }
         }
 
