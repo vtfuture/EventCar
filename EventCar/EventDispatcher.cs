@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Practices.ServiceLocation;
@@ -12,36 +11,23 @@ namespace EventCar
     {
         private Dictionary<Type, List<Type>> mappings = new Dictionary<Type, List<Type>>();
 
-        public override void Dispatch<TEvent>(TEvent ev, bool required)
+        public override Task DispatchAsync<TEvent>(TEvent ev, bool required)
         {
-            var eventType = ev.GetType();
+            var instanceList = GetInstances(ev, required);
 
-            var handlerTypes = GetMappings(eventType);
-
-            if (handlerTypes == null)
+            if (instanceList != null)
             {
-                if (required)
+                var tasks = new List<Task>();
+
+                foreach (var handler in instanceList.OrderBy(r => r.Order))
                 {
-                    throw new NotSupportedException("No handler implemented for type " + eventType.Name); 
+                    tasks.Add(handler.HandleAsync(ev));
                 }
 
-                return;
+                return Task.WhenAll(tasks);
             }
 
-            var instanceList = handlerTypes.Select(
-                x =>
-                    {
-                        var instance = ServiceLocator.Current.GetInstance(x);
-
-                        var handler = instance as IEventHandler<TEvent>;
-
-                        return handler;
-                    });
-
-            foreach (var handler in instanceList.OrderBy(r => r.Order))
-            {
-                handler.Handle(ev);    
-            }
+            return Task.FromResult(0);
         }
 
         public override void Register<TEvent, THandler>()
@@ -55,6 +41,34 @@ namespace EventCar
         internal override void Register(Type eventType, Type handlerType)
         {
             AddMapping(eventType, handlerType);
+        }
+
+        private IEnumerable<IEventHandler<TEvent>> GetInstances<TEvent>(TEvent ev, bool required)
+        {
+            var eventType = ev.GetType();
+
+            var handlerTypes = GetMappings(eventType);
+
+            if (handlerTypes == null)
+            {
+                if (required)
+                {
+                    throw new NotSupportedException("No handler implemented for type " + eventType.Name);
+                }
+
+                return null;
+            }
+
+            return handlerTypes.Select(
+                x =>
+                {
+                    var instance = ServiceLocator.Current.GetInstance(x);
+
+                    var handler = instance as IEventHandler<TEvent>;
+
+                    return handler;
+                });
+
         }
 
         private List<Type> GetMappings(Type eventType)

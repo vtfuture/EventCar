@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace EventCar
@@ -12,10 +10,10 @@ namespace EventCar
     {
         public static BaseEventDispatcher Dispatcher { get; set; }
 
-        public static void Fire<TEvent>(TEvent ev, bool required = false) where TEvent : IEvent
+        public static Task FireAsync<TEvent>(TEvent ev, bool required = false) where TEvent : IEvent
         {
             CheckForDispatcher();
-            Dispatcher.Dispatch(ev, required);
+            return Dispatcher.DispatchAsync(ev, required);
         }
 
         public static void Register<TEventHandler, TEvent>() where TEventHandler : IEventHandler<TEvent> 
