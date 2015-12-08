@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 using Microsoft.Practices.ServiceLocation;
 
@@ -11,23 +12,37 @@ namespace EventCar
     {
         private Dictionary<Type, List<Type>> mappings = new Dictionary<Type, List<Type>>();
 
-        public override Task DispatchAsync<TEvent>(TEvent ev, bool required)
+        public override async Task DispatchAsync<TEvent>(TEvent ev, bool required)
         {
             var instanceList = GetInstances(ev, required);
 
             if (instanceList != null)
             {
-                var tasks = new List<Task>();
+                var sw = Stopwatch.StartNew();
+                Dictionary<string, long> handlerTimings = new Dictionary<string, long>();
 
-                foreach (var handler in instanceList.OrderBy(r => r.Order))
+                foreach (var handler in instanceList.OrderBy(r => r.Order).ToList())
                 {
-                    tasks.Add(handler.HandleAsync(ev));
+                    var hsw = Stopwatch.StartNew();
+
+                    await handler.HandleAsync(ev);
+
+                    hsw.Stop();
+
+                    var handlerMs = hsw.ElapsedMilliseconds;
+
+                    handlerTimings.Add(handler.GetType().Name, hsw.ElapsedMilliseconds);
                 }
 
-                return Task.WhenAll(tasks);
-            }
+                sw.Stop();
 
-            return Task.FromResult(0);
+                var totalMs = sw.ElapsedMilliseconds;
+
+                if (Logger != null)
+                {
+                    Logger.LogExecutionTime(totalMs, handlerTimings);
+                }
+            }
         }
 
         public override void Register<TEvent, THandler>()
@@ -95,6 +110,11 @@ namespace EventCar
             }
 
             typeList.Add(handlerType);
+        }
+
+        public override void SetLogger(IEventLogger logger)
+        {
+            Logger = logger;
         }
     }
 }
